@@ -437,9 +437,61 @@ $categorias = getCategorias();
                 return;
             }
             
-            // Aquí iría la petición AJAX para actualizar el stock
-            showAlert('Funcionalidad de actualizar stock en desarrollo', 'info');
-            bootstrap.Modal.getInstance(stockModal).hide();
+            const data = {
+                producto_id: document.getElementById('producto_id').value,
+                nuevo_stock: document.getElementById('nuevo_stock').value,
+                motivo: document.getElementById('motivo').value
+            };
+            
+            // Deshabilitar botón mientras se procesa
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+            
+            fetch('actualizar_stock.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.text().then(text => {
+                    if (!text.trim()) {
+                        throw new Error('Respuesta vacía del servidor');
+                    }
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('Respuesta no válida:', text);
+                        throw new Error('Respuesta no es JSON válido');
+                    }
+                });
+            })
+            .then(result => {
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    // Recargar la página para mostrar los cambios
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showAlert(result.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Error al actualizar el stock', 'error');
+            })
+            .finally(() => {
+                // Restaurar botón
+                btn.disabled = false;
+                btn.innerHTML = 'Actualizar Stock';
+                bootstrap.Modal.getInstance(stockModal).hide();
+            });
         }
         
         // Función para activar/desactivar producto

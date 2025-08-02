@@ -1,4 +1,5 @@
 <?php
+ob_start(); // Iniciar buffer de salida
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
@@ -116,7 +117,7 @@ $pdf->writeHTML($html, true, false, true, false, '');
 $html = '<table style="width: 100%; margin-bottom: 15px;">
     <tr>
         <td style="width: 50%;">
-            <p><strong>Fecha:</strong> ' . date('d/m/Y H:i', strtotime($venta['fecha_venta'])) . '</p>
+            <p><strong>Fecha:</strong> ' . date('d/m/Y H:i', strtotime($venta['fecha'])) . '</p>
             <p><strong>Cliente:</strong> ' . ($venta['cliente_nombre'] ?: 'Cliente General') . '</p>';
 
 if ($venta['cliente_telefono']) {
@@ -199,6 +200,9 @@ $pdf->writeHTML($html, true, false, true, false, '');
 
 // Configurar nombre del archivo
 $filename = 'Factura_' . str_pad($venta['id'], 6, '0', STR_PAD_LEFT) . '_' . date('Ymd') . '.pdf';
+
+// Limpiar buffer de salida antes de enviar PDF
+ob_end_clean();
 
 // Enviar PDF al navegador
 $pdf->Output($filename, 'I');
