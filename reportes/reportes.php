@@ -101,7 +101,7 @@ $clientes_top = $stmt->fetchAll();
                         <div class="d-flex justify-content-between">
                             <div>
                                 <h6 class="card-title">Ventas Hoy</h6>
-                                <h4>$<?php echo number_format($stats['ventas_hoy'], 2); ?></h4>
+                                <h4>S/ <?php echo number_format($stats['ventas_hoy'], 2); ?></h4>
                             </div>
                             <div class="align-self-center">
                                 <i class="fas fa-dollar-sign fa-2x"></i>
@@ -116,7 +116,7 @@ $clientes_top = $stmt->fetchAll();
                         <div class="d-flex justify-content-between">
                             <div>
                                 <h6 class="card-title">Ventas del Mes</h6>
-                                <h4>$<?php echo number_format($stats['ventas_mes'], 2); ?></h4>
+                                <h4>S/ <?php echo number_format($stats['ventas_mes'], 2); ?></h4>
                             </div>
                             <div class="align-self-center">
                                 <i class="fas fa-chart-line fa-2x"></i>
@@ -179,7 +179,7 @@ $clientes_top = $stmt->fetchAll();
                                     <tr>
                                         <td><?php echo date('F Y', strtotime($venta['mes'] . '-01')); ?></td>
                                         <td><?php echo $venta['total_ventas']; ?></td>
-                                        <td>$<?php echo number_format($venta['total_ingresos'], 2); ?></td>
+                                        <td>S/ <?php echo number_format($venta['total_ingresos'], 2); ?></td>
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -215,7 +215,7 @@ $clientes_top = $stmt->fetchAll();
                                             <small class="text-muted"><?php echo $producto['codigo']; ?></small>
                                         </td>
                                         <td><?php echo $producto['total_vendido']; ?></td>
-                                        <td>$<?php echo number_format($producto['ingresos_producto'], 2); ?></td>
+                                        <td>S/ <?php echo number_format($producto['ingresos_producto'], 2); ?></td>
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>
@@ -249,7 +249,7 @@ $clientes_top = $stmt->fetchAll();
                                             <small class="text-muted"><?php echo htmlspecialchars($cliente['email']); ?></small>
                                         </td>
                                         <td><?php echo $cliente['total_compras']; ?></td>
-                                        <td>$<?php echo number_format($cliente['total_gastado'], 2); ?></td>
+                                        <td>S/ <?php echo number_format($cliente['total_gastado'], 2); ?></td>
                                     </tr>
                                     <?php endforeach; ?>
                                 </tbody>

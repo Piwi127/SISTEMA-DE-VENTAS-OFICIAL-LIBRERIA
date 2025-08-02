@@ -167,7 +167,7 @@ $categorias = getCategorias();
                                                             </small>
                                                         </p>
                                                         <div class="d-flex justify-content-between align-items-center">
-                                                            <span class="h5 mb-0 text-primary">$<?php echo number_format($producto['precio'], 2); ?></span>
+                                                            <span class="h5 mb-0 text-primary">S/ <?php echo number_format($producto['precio'], 2); ?></span>
                                                             <span class="badge <?php echo ($producto['stock'] > 10) ? 'bg-success' : (($producto['stock'] > 0) ? 'bg-warning' : 'bg-danger'); ?>">
                                                                 Stock: <?php echo $producto['stock']; ?>
                                                             </span>
@@ -222,7 +222,7 @@ $categorias = getCategorias();
                                 <div class="border-top pt-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <h5 class="mb-0">Total:</h5>
-                                        <h4 class="mb-0 text-primary" id="total-venta">$0.00</h4>
+                                        <h4 class="mb-0 text-primary" id="total-venta">S/ 0.00</h4>
                                     </div>
                                 </div>
                             </div>
@@ -255,6 +255,101 @@ $categorias = getCategorias();
 
     <!-- Contenedor de alertas -->
     <div id="alert-container"></div>
+
+    <!-- Modal de Confirmación de Venta -->
+    <div class="modal fade" id="modalConfirmacionVenta" tabindex="-1" aria-labelledby="modalConfirmacionVentaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalConfirmacionVentaLabel">
+                        <i class="fas fa-shopping-cart"></i> Confirmación de Venta
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Información del Cliente -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-user"></i> Información del Cliente</h6>
+                        </div>
+                        <div class="card-body">
+                            <p class="mb-0" id="cliente-confirmacion">Cliente no seleccionado</p>
+                        </div>
+                    </div>
+
+                    <!-- Detalle de Productos -->
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-list"></i> Detalle de la Venta</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th class="text-center">Cant.</th>
+                                            <th class="text-end">Precio Unit.</th>
+                                            <th class="text-end">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="detalle-productos-confirmacion">
+                                        <!-- Se llenará dinámicamente -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen de Totales -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h6 class="mb-0"><i class="fas fa-calculator"></i> Resumen de Totales</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Subtotal (sin IGV):</span>
+                                        <span id="subtotal-sin-igv">S/ 0.00</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>IGV (18%):</span>
+                                        <span id="igv-monto">S/ 0.00</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Cantidad de Items:</span>
+                                        <span id="total-items">0</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <strong>Total a Pagar:</strong>
+                                        <strong class="text-primary" id="total-confirmacion">S/ 0.00</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="finalizarVenta()">
+                        <i class="fas fa-check"></i> Finalizar Venta
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="descargarBoleta()">
+                        <i class="fas fa-file-pdf"></i> Descargar Boleta PDF
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="descargarFactura()">
+                        <i class="fas fa-file-invoice"></i> Descargar Factura PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/js/main.js"></script>

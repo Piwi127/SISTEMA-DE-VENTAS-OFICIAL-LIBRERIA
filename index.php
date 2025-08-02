@@ -107,7 +107,7 @@ $user_role = $_SESSION['user_role'];
                                             Ventas Hoy
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            $<?php echo number_format($stats['ventas_hoy'], 2); ?>
+                                            S/ <?php echo number_format($stats['ventas_hoy'], 2); ?>
                                         </div>
                                     </div>
                                     <div class="col-auto">
@@ -127,7 +127,7 @@ $user_role = $_SESSION['user_role'];
                                             Ventas Este Mes
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            $<?php echo number_format($stats['ventas_mes'], 2); ?>
+                                            S/ <?php echo number_format($stats['ventas_mes'], 2); ?>
                                         </div>
                                     </div>
                                     <div class="col-auto">
@@ -204,7 +204,7 @@ $user_role = $_SESSION['user_role'];
                                     <tr>
                                         <td><?php echo $venta['id']; ?></td>
                                         <td><?php echo htmlspecialchars($venta['cliente_nombre']); ?></td>
-                                        <td>$<?php echo number_format($venta['total'], 2); ?></td>
+                                        <td>S/ <?php echo number_format($venta['total'], 2); ?></td>
                                         <td><?php echo date('d/m/Y H:i', strtotime($venta['fecha'])); ?></td>
                                         <td>
                                             <span class="badge bg-success">Completada</span>

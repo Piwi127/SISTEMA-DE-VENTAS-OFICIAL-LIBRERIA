@@ -207,10 +207,10 @@ $categorias = getCategorias();
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <span class="h6 text-success">
-                                                        $<?php echo number_format($producto['precio'], 2); ?>
-                                                    </span>
-                                                </td>
+                                    <span class="h6 text-success">
+                                        S/ <?php echo number_format($producto['precio'], 2); ?>
+                                    </span>
+                                </td>
                                                 <td>
                                                     <?php
                                                     $stock = $producto['stock'];
@@ -340,7 +340,7 @@ $categorias = getCategorias();
                                             Valor Inventario
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            $<?php echo number_format(array_sum(array_map(function($p) { return $p['precio'] * $p['stock']; }, $productos)), 2); ?>
+                                            S/ <?php echo number_format(array_sum(array_map(function($p) { return $p['precio'] * $p['stock']; }, $productos)), 2); ?>
                                         </div>
                                     </div>
                                     <div class="col-auto">

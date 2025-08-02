@@ -210,7 +210,7 @@ $ventas = $stmt->fetchAll();
                                                 </td>
                                                 <td>
                                                     <span class="h6 text-success">
-                                                        $<?php echo number_format($venta['total'], 2); ?>
+                                                        S/ <?php echo number_format($venta['total'], 2); ?>
                                                     </span>
                                                 </td>
                                                 <td>
@@ -247,7 +247,7 @@ $ventas = $stmt->fetchAll();
                                     <tfoot>
                                         <tr class="table-info">
                                             <td colspan="2"><strong>Total de ventas mostradas:</strong></td>
-                                            <td><strong>$<?php echo number_format(array_sum(array_column($ventas, 'total')), 2); ?></strong></td>
+                                            <td><strong>S/ <?php echo number_format(array_sum(array_column($ventas, 'total')), 2); ?></strong></td>
                                             <td colspan="3"><strong><?php echo count($ventas); ?> ventas</strong></td>
                                         </tr>
                                     </tfoot>
@@ -293,7 +293,7 @@ $ventas = $stmt->fetchAll();
                                             Total Mostrado
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            $<?php echo number_format(array_sum(array_column($ventas, 'total')), 2); ?>
+                                            S/ <?php echo number_format(array_sum(array_column($ventas, 'total')), 2); ?>
                                         </div>
                                     </div>
                                     <div class="col-auto">
@@ -313,7 +313,7 @@ $ventas = $stmt->fetchAll();
                                             Promedio por Venta
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            $<?php echo count($ventas) > 0 ? number_format(array_sum(array_column($ventas, 'total')) / count($ventas), 2) : '0.00'; ?>
+                                            S/ <?php echo count($ventas) > 0 ? number_format(array_sum(array_column($ventas, 'total')) / count($ventas), 2) : '0.00'; ?>
                                         </div>
                                     </div>
                                     <div class="col-auto">

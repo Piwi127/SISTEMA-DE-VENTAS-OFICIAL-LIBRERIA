@@ -94,10 +94,10 @@ try {
         ('Vendedor Demo', 'vendedor@libreria.com', '\$2y\$10\$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'vendedor')");
     
     $pdo->exec("INSERT IGNORE INTO productos (codigo, nombre, descripcion, categoria_id, precio, stock) VALUES 
-        ('LIB001', 'Cien Años de Soledad', 'Novela de Gabriel García Márquez', 2, 25.99, 15),
-        ('LIB002', 'Don Quijote de la Mancha', 'Clásico de Miguel de Cervantes', 2, 32.50, 8),
-        ('PAP001', 'Cuaderno Universitario', 'Cuaderno de 100 hojas rayado', 3, 3.50, 50),
-        ('PAP002', 'Bolígrafo Azul', 'Bolígrafo de tinta azul', 3, 1.25, 100)");
+        ('LIB001', 'Cien Años de Soledad', 'Novela de Gabriel García Márquez', 2, 89.90, 15),
+        ('LIB002', 'Don Quijote de la Mancha', 'Clásico de Miguel de Cervantes', 2, 119.90, 8),
+        ('PAP001', 'Cuaderno Universitario', 'Cuaderno de 100 hojas rayado', 3, 12.50, 50),
+        ('PAP002', 'Bolígrafo Azul', 'Bolígrafo de tinta azul', 3, 4.50, 100)");
     
     $pdo->exec("INSERT IGNORE INTO clientes (nombre, apellido, email, telefono) VALUES 
         ('Juan', 'Pérez', 'juan.perez@email.com', '555-0101'),

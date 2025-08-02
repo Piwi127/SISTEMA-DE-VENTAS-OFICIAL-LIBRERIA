@@ -99,7 +99,7 @@ function updateCarritoDisplay() {
                         <div class="row align-items-center">
                             <div class="col-md-6">
                                 <h6 class="mb-1">${item.nombre}</h6>
-                                <small class="text-muted">$${item.precio.toFixed(2)} c/u</small>
+                                <small class="text-muted">S/ ${item.precio.toFixed(2)} c/u</small>
                             </div>
                             <div class="col-md-3">
                                 <div class="input-group input-group-sm">
@@ -117,7 +117,7 @@ function updateCarritoDisplay() {
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <strong>$${item.subtotal.toFixed(2)}</strong>
+                                <strong>S/ ${item.subtotal.toFixed(2)}</strong>
                             </div>
                             <div class="col-md-1">
                                 <button class="btn btn-sm btn-outline-danger" 
@@ -137,7 +137,7 @@ function updateCarritoDisplay() {
     totalVenta = carrito.reduce((total, item) => total + item.subtotal, 0);
     
     if (totalContainer) {
-        totalContainer.textContent = `$${totalVenta.toFixed(2)}`;
+        totalContainer.textContent = `S/ ${totalVenta.toFixed(2)}`;
     }
     
     if (carritoCount) {
@@ -159,35 +159,46 @@ function loadCarritoFromStorage() {
 
 // Función para mostrar alertas
 function showAlert(message, type = 'info') {
-    const alertContainer = document.getElementById('alert-container');
-    if (!alertContainer) {
-        // Crear contenedor de alertas si no existe
-        const container = document.createElement('div');
-        container.id = 'alert-container';
-        container.style.position = 'fixed';
-        container.style.top = '20px';
-        container.style.right = '20px';
-        container.style.zIndex = '9999';
-        document.body.appendChild(container);
-    }
+    // Usar alert simple para debug
+    console.log(`ALERT [${type}]: ${message}`);
+    alert(`[${type.toUpperCase()}] ${message}`);
     
-    const alertId = 'alert-' + Date.now();
-    const alertHtml = `
-        <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
-            <i class="fas fa-${getAlertIcon(type)}"></i> ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    document.getElementById('alert-container').innerHTML += alertHtml;
-    
-    // Auto-remover después de 5 segundos
-    setTimeout(() => {
-        const alertElement = document.getElementById(alertId);
-        if (alertElement) {
-            alertElement.remove();
+    // Intentar también mostrar en contenedor si existe
+    try {
+        let alertContainer = document.getElementById('alert-container');
+        if (!alertContainer) {
+            // Crear contenedor de alertas si no existe
+            const container = document.createElement('div');
+            container.id = 'alert-container';
+            container.style.position = 'fixed';
+            container.style.top = '20px';
+            container.style.right = '20px';
+            container.style.zIndex = '9999';
+            container.style.maxWidth = '400px';
+            document.body.appendChild(container);
+            alertContainer = container;
         }
-    }, 5000);
+        
+        const alertId = 'alert-' + Date.now();
+        const alertHtml = `
+            <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert" style="margin-bottom: 10px;">
+                <i class="fas fa-${getAlertIcon(type)}"></i> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        alertContainer.innerHTML += alertHtml;
+        
+        // Auto-remover después de 5 segundos
+        setTimeout(() => {
+            const alertElement = document.getElementById(alertId);
+            if (alertElement) {
+                alertElement.remove();
+            }
+        }, 5000);
+    } catch (error) {
+        console.error('Error en showAlert:', error);
+    }
 }
 
 function getAlertIcon(type) {
@@ -276,36 +287,143 @@ function procesarVenta() {
         return;
     }
     
-    // Mostrar confirmación
-    if (confirm(`¿Confirmar venta por $${totalVenta.toFixed(2)}?`)) {
-        // Enviar datos al servidor
-        const formData = new FormData();
-        formData.append('cliente_id', clienteId);
-        formData.append('productos', JSON.stringify(carrito));
-        formData.append('total', totalVenta);
-        
-        fetch('ventas/procesar_venta.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showAlert('Venta procesada exitosamente', 'success');
-                limpiarCarrito();
-                // Redirigir o actualizar página
-                setTimeout(() => {
-                    window.location.href = 'ventas/lista_ventas.php';
-                }, 2000);
-            } else {
-                showAlert('Error al procesar la venta: ' + data.message, 'danger');
-            }
-        })
-        .catch(error => {
-            showAlert('Error de conexión', 'danger');
-            console.error('Error:', error);
-        });
+    // Mostrar modal de confirmación
+    mostrarModalConfirmacion();
+}
+
+// Nueva función para mostrar el modal de confirmación
+function mostrarModalConfirmacion() {
+    // Obtener información del cliente seleccionado
+    const clienteSelect = document.getElementById('cliente_id');
+    const clienteNombre = clienteSelect.options[clienteSelect.selectedIndex].text;
+    
+    // Actualizar información del cliente en el modal
+    document.getElementById('cliente-confirmacion').textContent = clienteNombre;
+    
+    // Llenar detalle de productos
+    const detalleProductos = document.getElementById('detalle-productos-confirmacion');
+    detalleProductos.innerHTML = '';
+    
+    let totalItems = 0;
+    carrito.forEach(item => {
+        totalItems += item.cantidad;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.nombre}</td>
+            <td class="text-center">${item.cantidad}</td>
+            <td class="text-end">S/ ${item.precio.toFixed(2)}</td>
+            <td class="text-end">S/ ${item.subtotal.toFixed(2)}</td>
+        `;
+        detalleProductos.appendChild(row);
+    });
+    
+    // Calcular totales (los precios ya incluyen IGV)
+    const subtotalSinIGV = totalVenta / 1.18; // Dividir entre 1.18 para obtener base sin IGV
+    const igvMonto = totalVenta - subtotalSinIGV;
+    
+    // Actualizar totales en el modal
+    document.getElementById('subtotal-sin-igv').textContent = `S/ ${subtotalSinIGV.toFixed(2)}`;
+    document.getElementById('igv-monto').textContent = `S/ ${igvMonto.toFixed(2)}`;
+    document.getElementById('total-items').textContent = totalItems;
+    document.getElementById('total-confirmacion').textContent = `S/ ${totalVenta.toFixed(2)}`;
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('modalConfirmacionVenta'));
+    modal.show();
+}
+
+// Función para finalizar la venta
+function finalizarVenta() {
+    const clienteId = document.getElementById('cliente_id').value;
+    
+    // Enviar datos al servidor
+    const formData = new FormData();
+    formData.append('cliente_id', clienteId);
+    formData.append('productos', JSON.stringify(carrito));
+    formData.append('total', totalVenta);
+    
+    fetch('procesar_venta.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmacionVenta'));
+            modal.hide();
+            
+            showAlert('Venta procesada exitosamente', 'success');
+            
+            // Guardar ID de venta para descargas
+            window.ultimaVentaId = data.venta_id;
+            
+            limpiarCarrito();
+            
+            // Redirigir después de un momento
+            setTimeout(() => {
+                window.location.href = 'lista_ventas.php';
+            }, 2000);
+        } else {
+            showAlert('Error al procesar la venta: ' + data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        showAlert('Error de conexión', 'danger');
+        console.error('Error:', error);
+    });
+}
+
+// Función para descargar boleta PDF
+function descargarBoleta() {
+    if (!window.ultimaVentaId) {
+        showAlert('Debe finalizar la venta primero', 'warning');
+        return;
     }
+    
+    // Crear formulario temporal para descarga
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'generar_boleta_pdf.php';
+    form.target = '_blank';
+    
+    const ventaIdInput = document.createElement('input');
+    ventaIdInput.type = 'hidden';
+    ventaIdInput.name = 'venta_id';
+    ventaIdInput.value = window.ultimaVentaId;
+    
+    form.appendChild(ventaIdInput);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    
+    showAlert('Generando boleta PDF...', 'info');
+}
+
+// Función para descargar factura PDF
+function descargarFactura() {
+    if (!window.ultimaVentaId) {
+        showAlert('Debe finalizar la venta primero', 'warning');
+        return;
+    }
+    
+    // Crear formulario temporal para descarga
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'generar_factura_pdf.php';
+    form.target = '_blank';
+    
+    const ventaIdInput = document.createElement('input');
+    ventaIdInput.type = 'hidden';
+    ventaIdInput.name = 'venta_id';
+    ventaIdInput.value = window.ultimaVentaId;
+    
+    form.appendChild(ventaIdInput);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    
+    showAlert('Generando factura PDF...', 'info');
 }
 
 // Función para imprimir

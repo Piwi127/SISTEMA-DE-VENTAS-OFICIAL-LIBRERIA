@@ -186,7 +186,7 @@ function formatearFecha($fecha) {
 
 // Función para formatear moneda
 function formatearMoneda($cantidad) {
-    return '$' . number_format($cantidad, 2);
+    return 'S/ ' . number_format($cantidad, 2);
 }
 
 // Función para limpiar input
