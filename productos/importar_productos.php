@@ -7,8 +7,7 @@ use Box\Spout\Reader\Common\Creator\ReaderFactory;
 use Box\Spout\Common\Type;
 
 // Configuración de la base de datos
-$db = new Database();
-$conn = $db->getConnection();
+$conn = getConnection();
 
 // Ruta al archivo Excel
 $filePath = __DIR__ . '/../public/BASE ACTUALIZADA.xlsx';
@@ -27,7 +26,7 @@ echo "Iniciando importación de productos...\n";
 $firstRow = true;
 $importedCount = 0;
 
-foreach ($reader->getSheets() as $sheet) {
+foreach ($reader->getSheetIterator() as $sheet) {
     foreach ($sheet->getRowIterator() as $row) {
         $cells = $row->toArray();
 
@@ -37,14 +36,14 @@ foreach ($reader->getSheets() as $sheet) {
             continue;
         }
 
-        // Asumiendo el orden de las columnas en el Excel:
-        // [0] Nombre del Producto, [1] Descripción, [2] Categoría, [3] Precio, [4] Stock, [5] Stock Mínimo
+        // Estructura real del Excel:
+        // [0] Nombre del Producto, [1] Precio, [2] Stock, [3] ?, [4] Categoría
         $nombre = $cells[0] ?? null;
-        $descripcion = $cells[1] ?? null;
-        $categoriaNombre = $cells[2] ?? null;
-        $precio = $cells[3] ?? null;
-        $stock = $cells[4] ?? null;
-        $stockMinimo = $cells[5] ?? null;
+        $precio = $cells[1] ?? null;
+        $stock = $cells[2] ?? null;
+        $categoriaNombre = $cells[4] ?? null;
+        $descripcion = null; // No hay descripción en el Excel
+        $stockMinimo = 5; // Valor por defecto
 
         // Validar datos básicos
         if (empty($nombre) || empty($precio)) {
@@ -60,31 +59,27 @@ foreach ($reader->getSheets() as $sheet) {
         $categoriaId = null;
         if ($categoriaNombre) {
             $stmt = $conn->prepare("SELECT id FROM categorias WHERE nombre = ?");
-            $stmt->bind_param("s", $categoriaNombre);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            if ($result->num_rows > 0) {
-                $categoriaId = $result->fetch_assoc()['id'];
+            $stmt->execute([$categoriaNombre]);
+             $result = $stmt->fetch(PDO::FETCH_ASSOC);
+             if ($result) {
+                 $categoriaId = $result['id'];
             } else {
                 // Si la categoría no existe, crearla
                 $stmt = $conn->prepare("INSERT INTO categorias (nombre) VALUES (?)");
-                $stmt->bind_param("s", $categoriaNombre);
-                $stmt->execute();
-                $categoriaId = $conn->insert_id;
+                $stmt->execute([$categoriaNombre]);
+                $categoriaId = $conn->lastInsertId();
                 echo "Categoría '{$categoriaNombre}' creada con ID: {$categoriaId}\n";
             }
         }
 
         // Insertar el producto
-        $stmt = $conn->prepare("INSERT INTO productos (codigo, nombre, descripcion, categoria_id, precio, stock, stock_minimo) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssiddi", $codigo, $nombre, $descripcion, $categoriaId, $precio, $stock, $stockMinimo);
-
         try {
-            $stmt->execute();
+            $stmt = $conn->prepare("INSERT INTO productos (codigo, nombre, descripcion, categoria_id, precio, stock, stock_minimo) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$codigo, $nombre, $descripcion, $categoriaId, $precio, $stock, $stockMinimo]);
             $importedCount++;
             echo "Producto '{$nombre}' importado con código '{$codigo}'\n";
-        } catch (mysqli_sql_exception $e) {
-            if ($e->getCode() == 1062) { // Error de duplicado (código único)
+        } catch (PDOException $e) {
+            if ($e->getCode() == 23000) { // Error de duplicado (código único)
                 echo "Error: El código de producto '{$codigo}' ya existe para '{$nombre}'. Saltando.\n";
             } else {
                 echo "Error al insertar producto '{$nombre}': " . $e->getMessage() . "\n";
@@ -94,7 +89,7 @@ foreach ($reader->getSheets() as $sheet) {
 }
 
 $reader->close();
-$conn->close();
+$conn = null;
 
 echo "Importación completada. Total de productos importados: {$importedCount}\n";
 
