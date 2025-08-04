@@ -14,6 +14,17 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
+    padding-top: 56px; /* Compensar la altura del navbar fijo */
+}
+
+/* Navbar */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    height: 56px;
 }
 
 /* Sidebar */
@@ -22,9 +33,41 @@ body {
     top: 56px;
     bottom: 0;
     left: 0;
-    z-index: 100;
+    z-index: 10;
+    width: 250px; /* Ancho del sidebar */
     padding: 48px 0 0;
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    background-color: #f8f9fa; /* Color de fondo para el sidebar */
+    overflow-y: auto;
+}
+
+.main-content-wrapper {
+    padding-left: 250px; /* Ajustar el padding izquierdo del contenido principal para el sidebar */
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+}
+
+.sidebar .sidebar-item {
+    display: block;
+    color: #333;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.sidebar .sidebar-item:hover {
+    color: var(--primary-color);
+    background-color: rgba(102, 126, 234, 0.1);
+    text-decoration: none;
+}
+
+.sidebar .sidebar-item.active {
+    color: white;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
 }
 
 .sidebar .nav-link {

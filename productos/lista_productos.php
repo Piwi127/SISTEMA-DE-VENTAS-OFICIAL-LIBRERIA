@@ -52,7 +52,7 @@ $categorias = getCategorias();
         <div class="row">
             <!-- Sidebar -->
             <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-sticky pt-3">
+                <div class="position-fixed pt-3">
                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link" href="../index.php">
@@ -501,6 +501,171 @@ $categorias = getCategorias();
                 // Aquí iría la petición AJAX para cambiar el estado
                 showAlert(`Funcionalidad de ${accion} producto en desarrollo`, 'info');
             }
+        }
+        
+        // Autocompletado en tiempo real
+        let searchTimeout;
+        const searchInput = document.getElementById('search');
+        const searchResults = document.createElement('div');
+        searchResults.className = 'autocomplete-results';
+        searchResults.style.cssText = `
+             position: fixed;
+             background: white;
+             border: 1px solid #ddd;
+             border-radius: 0 0 8px 8px;
+             max-height: 300px;
+             overflow-y: auto;
+             z-index: 99999;
+             display: none;
+             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+             border-top: none;
+         `;
+         
+         // Función para posicionar el desplegable
+         function posicionarDesplegable() {
+             const rect = searchInput.getBoundingClientRect();
+             searchResults.style.top = (rect.bottom) + 'px';
+             searchResults.style.left = rect.left + 'px';
+             searchResults.style.width = rect.width + 'px';
+         }
+        
+        // Agregar el contenedor de resultados al body
+         document.body.appendChild(searchResults);
+        
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            // Limpiar timeout anterior
+            clearTimeout(searchTimeout);
+            
+            if (query.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            // Esperar 300ms antes de buscar
+            searchTimeout = setTimeout(() => {
+                fetch(`buscar_productos.php?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.productos.length > 0) {
+                        mostrarResultados(data.productos);
+                    } else {
+                        searchResults.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error en búsqueda:', error);
+                    searchResults.style.display = 'none';
+                });
+            }, 300);
+        });
+        
+        function mostrarResultados(productos) {
+             searchResults.innerHTML = '';
+             posicionarDesplegable();
+            
+            productos.forEach(producto => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.style.cssText = `
+                    padding: 10px;
+                    border-bottom: 1px solid #eee;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                `;
+                
+                item.innerHTML = `
+                    <div style="font-weight: bold;">${producto.nombre}</div>
+                    <div style="font-size: 0.9em; color: #666;">
+                        Código: ${producto.codigo} | 
+                        Precio: S/ ${producto.precio} | 
+                        Stock: ${producto.stock} | 
+                        Categoría: ${producto.categoria}
+                    </div>
+                `;
+                
+                // Hover effect
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f9fa';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'white';
+                });
+                
+                // Click para seleccionar
+                item.addEventListener('click', function() {
+                    searchInput.value = producto.nombre;
+                    searchResults.style.display = 'none';
+                    // Enviar formulario automáticamente
+                    searchInput.closest('form').submit();
+                });
+                
+                searchResults.appendChild(item);
+            });
+            
+            searchResults.style.display = 'block';
+        }
+        
+        // Ocultar resultados al hacer click fuera
+         document.addEventListener('click', function(e) {
+             if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                 searchResults.style.display = 'none';
+             }
+         });
+         
+         // Reposicionar al hacer scroll o redimensionar
+         window.addEventListener('scroll', function() {
+             if (searchResults.style.display === 'block') {
+                 posicionarDesplegable();
+             }
+         });
+         
+         window.addEventListener('resize', function() {
+             if (searchResults.style.display === 'block') {
+                 posicionarDesplegable();
+             }
+         });
+        
+        // Manejar teclas de navegación
+        searchInput.addEventListener('keydown', function(e) {
+            const items = searchResults.querySelectorAll('.autocomplete-item');
+            let selectedIndex = -1;
+            
+            // Encontrar item seleccionado actual
+            items.forEach((item, index) => {
+                if (item.style.backgroundColor === 'rgb(0, 123, 255)') {
+                    selectedIndex = index;
+                }
+            });
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection(items, selectedIndex);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, 0);
+                updateSelection(items, selectedIndex);
+            } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                e.preventDefault();
+                items[selectedIndex].click();
+            } else if (e.key === 'Escape') {
+                searchResults.style.display = 'none';
+            }
+        });
+        
+        function updateSelection(items, selectedIndex) {
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    item.style.backgroundColor = '#007bff';
+                    item.style.color = 'white';
+                } else {
+                    item.style.backgroundColor = 'white';
+                    item.style.color = 'black';
+                }
+            });
         }
     </script>
 </body>

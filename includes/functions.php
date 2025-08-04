@@ -61,6 +61,11 @@ function authenticateUser($email, $password) {
     return false;
 }
 
+// Función para verificar si el usuario ha iniciado sesión
+function isLoggedIn() {
+    return isset($_SESSION['user_id']);
+}
+
 // Función para obtener todos los productos
 function getProductos($search = '', $categoria = '') {
     $pdo = getConnection();
