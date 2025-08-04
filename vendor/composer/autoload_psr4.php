@@ -8,4 +8,5 @@ $baseDir = dirname($vendorDir);
 return array(
     'PHPMailer\\PHPMailer\\' => array($vendorDir . '/phpmailer/phpmailer/src'),
     'LibreriaBelen\\' => array($baseDir . '/src'),
+    'Box\\Spout\\' => array($vendorDir . '/box/spout/src/Spout'),
 );

@@ -5,7 +5,8 @@
     "require": {
         "php": ">=7.4",
         "tecnickcom/tcpdf": "^6.6",
-        "phpmailer/phpmailer": "^6.8"
+        "phpmailer/phpmailer": "^6.8",
+        "box/spout": "^3.3"
     },
     "autoload": {
         "psr-4": {

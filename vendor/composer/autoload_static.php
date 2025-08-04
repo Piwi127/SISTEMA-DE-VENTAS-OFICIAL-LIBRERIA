@@ -15,6 +15,10 @@ class ComposerStaticInitcf661dc648ec38b4ec10bb65cf93d7ea
         array (
             'LibreriaBelen\\' => 14,
         ),
+        'B' => 
+        array (
+            'Box\\Spout\\' => 10,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -25,6 +29,10 @@ class ComposerStaticInitcf661dc648ec38b4ec10bb65cf93d7ea
         'LibreriaBelen\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
+        ),
+        'Box\\Spout\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/box/spout/src/Spout',
         ),
     );
 
