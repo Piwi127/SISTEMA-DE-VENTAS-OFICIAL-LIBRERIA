@@ -148,6 +148,27 @@ CREATE TABLE notas (
     INDEX idx_estado (estado)
 );
 
+-- Tabla de ventas libres
+CREATE TABLE ventas_libres (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    numero_venta VARCHAR(20) UNIQUE NOT NULL,
+    motivo_venta TEXT NOT NULL,
+    descripcion TEXT NOT NULL,
+    cantidad INT NOT NULL DEFAULT 1,
+    precio_unitario DECIMAL(10,2) NOT NULL,
+    total DECIMAL(10,2) NOT NULL,
+    fecha_venta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    usuario_id INT NOT NULL,
+    estado ENUM('activa', 'anulada') DEFAULT 'activa',
+    metodo_pago ENUM('efectivo', 'tarjeta', 'transferencia') DEFAULT 'efectivo',
+    notas TEXT,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+    INDEX idx_numero_venta (numero_venta),
+    INDEX idx_fecha_venta (fecha_venta),
+    INDEX idx_usuario (usuario_id),
+    INDEX idx_estado (estado)
+);
+
 -- Insertar datos iniciales
 
 -- Categorías de ejemplo

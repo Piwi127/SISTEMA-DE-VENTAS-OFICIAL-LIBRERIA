@@ -15,6 +15,16 @@ function getDashboardStats() {
     $stmt->execute();
     $ventas_mes = $stmt->fetch()['ventas_mes'];
     
+    // Ventas libres de hoy (solo activas)
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_libres_hoy FROM ventas_libres WHERE DATE(fecha_venta) = CURDATE() AND estado = 'activa'");
+    $stmt->execute();
+    $ventas_libres_hoy = $stmt->fetch()['ventas_libres_hoy'];
+    
+    // Ventas libres del mes (solo activas)
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_libres_mes FROM ventas_libres WHERE MONTH(fecha_venta) = MONTH(CURDATE()) AND YEAR(fecha_venta) = YEAR(CURDATE()) AND estado = 'activa'");
+    $stmt->execute();
+    $ventas_libres_mes = $stmt->fetch()['ventas_libres_mes'];
+    
     // Total productos
     $stmt = $pdo->prepare("SELECT COUNT(*) as total_productos FROM productos WHERE activo = 1");
     $stmt->execute();
@@ -28,6 +38,8 @@ function getDashboardStats() {
     return [
         'ventas_hoy' => $ventas_hoy,
         'ventas_mes' => $ventas_mes,
+        'ventas_libres_hoy' => $ventas_libres_hoy,
+        'ventas_libres_mes' => $ventas_libres_mes,
         'total_productos' => $total_productos,
         'total_clientes' => $total_clientes
     ];
@@ -227,4 +239,155 @@ function esAdmin() {
 function generarCodigoProducto() {
     return 'PROD' . date('Ymd') . rand(1000, 9999);
 }
+
+// ========== FUNCIONES PARA VENTAS LIBRES ==========
+
+// Función para generar número de venta libre
+function generarNumeroVentaLibre() {
+    $pdo = getConnection();
+    $fecha = date('Ymd');
+    
+    // Obtener el último número del día
+    $stmt = $pdo->prepare("SELECT numero_venta FROM ventas_libres WHERE DATE(fecha_venta) = CURDATE() ORDER BY id DESC LIMIT 1");
+    $stmt->execute();
+    $ultimo = $stmt->fetch();
+    
+    if ($ultimo) {
+        // Extraer el número secuencial del último número
+        $partes = explode('-', $ultimo['numero_venta']);
+        $secuencial = intval($partes[2]) + 1;
+    } else {
+        $secuencial = 1;
+    }
+    
+    return 'VL-' . $fecha . '-' . str_pad($secuencial, 4, '0', STR_PAD_LEFT);
+}
+
+// Función para obtener ventas libres con filtros
+function getVentasLibres($filtros = []) {
+    $pdo = getConnection();
+    $sql = "SELECT vl.*, u.nombre as vendedor_nombre FROM ventas_libres vl 
+            LEFT JOIN usuarios u ON vl.usuario_id = u.id 
+            WHERE 1=1";
+    
+    $params = [];
+    
+    if (!empty($filtros['fecha_inicio'])) {
+        $sql .= " AND DATE(vl.fecha_venta) >= ?";
+        $params[] = $filtros['fecha_inicio'];
+    }
+    
+    if (!empty($filtros['fecha_fin'])) {
+        $sql .= " AND DATE(vl.fecha_venta) <= ?";
+        $params[] = $filtros['fecha_fin'];
+    }
+    
+    if (!empty($filtros['estado'])) {
+        $sql .= " AND vl.estado = ?";
+        $params[] = $filtros['estado'];
+    }
+    
+    if (!empty($filtros['busqueda'])) {
+        $sql .= " AND (vl.motivo_venta LIKE ? OR vl.descripcion LIKE ? OR vl.numero_venta LIKE ?)";
+        $busqueda = "%{$filtros['busqueda']}%";
+        $params[] = $busqueda;
+        $params[] = $busqueda;
+        $params[] = $busqueda;
+    }
+    
+    $sql .= " ORDER BY vl.fecha_venta DESC";
+    
+    if (!empty($filtros['limit'])) {
+        $sql .= " LIMIT " . intval($filtros['limit']);
+        if (!empty($filtros['offset'])) {
+            $sql .= " OFFSET " . intval($filtros['offset']);
+        }
+    }
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll();
+}
+
+// Función para contar ventas libres con filtros
+function contarVentasLibres($filtros = []) {
+    $pdo = getConnection();
+    $sql = "SELECT COUNT(*) as total FROM ventas_libres WHERE 1=1";
+    
+    $params = [];
+    
+    if (!empty($filtros['fecha_inicio'])) {
+        $sql .= " AND DATE(fecha_venta) >= ?";
+        $params[] = $filtros['fecha_inicio'];
+    }
+    
+    if (!empty($filtros['fecha_fin'])) {
+        $sql .= " AND DATE(fecha_venta) <= ?";
+        $params[] = $filtros['fecha_fin'];
+    }
+    
+    if (!empty($filtros['estado'])) {
+        $sql .= " AND estado = ?";
+        $params[] = $filtros['estado'];
+    }
+    
+    if (!empty($filtros['busqueda'])) {
+        $sql .= " AND (motivo_venta LIKE ? OR descripcion LIKE ? OR numero_venta LIKE ?)";
+        $busqueda = "%{$filtros['busqueda']}%";
+        $params[] = $busqueda;
+        $params[] = $busqueda;
+        $params[] = $busqueda;
+    }
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetch()['total'];
+}
+
+// Función para obtener venta libre por ID
+function getVentaLibreById($id) {
+    $pdo = getConnection();
+    $stmt = $pdo->prepare("SELECT vl.*, u.nombre as vendedor_nombre FROM ventas_libres vl 
+                          LEFT JOIN usuarios u ON vl.usuario_id = u.id 
+                          WHERE vl.id = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch();
+}
+
+// Función para obtener estadísticas de ventas libres
+function getEstadisticasVentasLibres() {
+    $pdo = getConnection();
+    
+    // Total de ventas libres activas
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total_ventas, COALESCE(SUM(total), 0) as total_ingresos FROM ventas_libres WHERE estado = 'activa'");
+    $stmt->execute();
+    $activas = $stmt->fetch();
+    
+    // Total de ventas libres anuladas
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total_anuladas FROM ventas_libres WHERE estado = 'anulada'");
+    $stmt->execute();
+    $anuladas = $stmt->fetch();
+    
+    return [
+        'total_ventas' => $activas['total_ventas'],
+        'total_ingresos' => $activas['total_ingresos'],
+        'total_anuladas' => $anuladas['total_anuladas']
+    ];
+}
+
+// Función para obtener ventas libres recientes
+function getVentasLibresRecientes($limit = 5) {
+    $pdo = getConnection();
+    $stmt = $pdo->prepare("
+        SELECT vl.id, vl.numero_venta, vl.motivo_venta, vl.total, vl.fecha_venta, vl.estado, u.nombre as vendedor_nombre 
+        FROM ventas_libres vl 
+        LEFT JOIN usuarios u ON vl.usuario_id = u.id 
+        ORDER BY vl.fecha_venta DESC 
+        LIMIT :limit
+    ");
+    $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll();
+}
+
 ?>

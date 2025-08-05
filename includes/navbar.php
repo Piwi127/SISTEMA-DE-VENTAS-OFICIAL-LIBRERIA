@@ -18,8 +18,17 @@
             <li class="nav-item">
                 <a class="nav-link" href="../clientes/lista_clientes.php">Clientes</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="../ventas/lista_ventas.php">Ventas</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="ventasDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    Ventas
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="ventasDropdown">
+                    <li><a class="dropdown-item" href="../ventas/nueva_venta.php"><i class="fas fa-plus me-2"></i>Nueva Venta</a></li>
+                    <li><a class="dropdown-item" href="../ventas/lista_ventas.php"><i class="fas fa-list me-2"></i>Lista de Ventas</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="../ventas/venta_libre.php"><i class="fas fa-cash-register me-2"></i>Nueva Venta Libre</a></li>
+                    <li><a class="dropdown-item" href="../ventas/lista_ventas_libres.php"><i class="fas fa-clipboard-list me-2"></i>Lista Ventas Libres</a></li>
+                </ul>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="../usuarios/lista_usuarios.php">Usuarios</a>

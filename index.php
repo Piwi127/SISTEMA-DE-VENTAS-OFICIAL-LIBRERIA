@@ -53,12 +53,26 @@ $user_role = $_SESSION['user_role'];
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="ventas/nueva_venta.php">
-                                <i class="fas fa-shopping-cart"></i> Nueva Venta
+                                <i class="fas fa-plus-circle"></i>
+                                Nueva Venta
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="ventas/lista_ventas.php">
-                                <i class="fas fa-list"></i> Lista de Ventas
+                                <i class="fas fa-list"></i>
+                                Lista de Ventas
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="ventas/venta_libre.php">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                Nueva Venta Libre
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="ventas/lista_ventas_libres.php">
+                                <i class="fas fa-clipboard-list"></i>
+                                Lista Ventas Libres
                             </a>
                         </li>
                         <li class="nav-item">
@@ -184,40 +198,130 @@ $user_role = $_SESSION['user_role'];
                     </div>
                 </div>
 
-                <!-- Ventas Recientes -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Ventas Recientes</h6>
+                <!-- Estadísticas de Ventas Libres -->
+                <div class="row">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-purple shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-purple text-uppercase mb-1">
+                                            Ventas Libres Hoy
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            S/ <?php echo number_format($stats['ventas_libres_hoy'], 2); ?>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Cliente</th>
-                                        <th>Total</th>
-                                        <th>Fecha</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                    $ventas_recientes = getVentasRecientes(10);
-                                    foreach ($ventas_recientes as $venta):
-                                    ?>
-                                    <tr>
-                                        <td><?php echo $venta['id']; ?></td>
-                                        <td><?php echo htmlspecialchars($venta['cliente_nombre']); ?></td>
-                                        <td>S/ <?php echo number_format($venta['total'], 2); ?></td>
-                                        <td><?php echo date('d/m/Y H:i', strtotime($venta['fecha'])); ?></td>
-                                        <td>
-                                            <span class="badge bg-success">Completada</span>
-                                        </td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-dark shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                            Ventas Libres Este Mes
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            S/ <?php echo number_format($stats['ventas_libres_mes'], 2); ?>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-calendar-alt fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ventas Recientes -->
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">Ventas Recientes</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Cliente</th>
+                                                <th>Total</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $ventas_recientes = getVentasRecientes(5);
+                                            foreach ($ventas_recientes as $venta):
+                                            ?>
+                                            <tr>
+                                                <td><?php echo $venta['id']; ?></td>
+                                                <td><?php echo htmlspecialchars($venta['cliente_nombre']); ?></td>
+                                                <td>S/ <?php echo number_format($venta['total'], 2); ?></td>
+                                                <td><?php echo date('d/m/Y H:i', strtotime($venta['fecha'])); ?></td>
+                                                <td>
+                                                    <span class="badge bg-success">Completada</span>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-purple">Ventas Libres Recientes</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Número</th>
+                                                <th>Motivo</th>
+                                                <th>Total</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $ventas_libres_recientes = getVentasLibresRecientes(5);
+                                            foreach ($ventas_libres_recientes as $venta_libre):
+                                            ?>
+                                            <tr>
+                                                <td><?php echo htmlspecialchars($venta_libre['numero_venta']); ?></td>
+                                                <td><?php echo htmlspecialchars(substr($venta_libre['motivo_venta'], 0, 20)) . '...'; ?></td>
+                                                <td>S/ <?php echo number_format($venta_libre['total'], 2); ?></td>
+                                                <td><?php echo date('d/m/Y H:i', strtotime($venta_libre['fecha_venta'])); ?></td>
+                                                <td>
+                                                    <?php if ($venta_libre['estado'] == 'activa'): ?>
+                                                        <span class="badge bg-success">Activa</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-danger">Anulada</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

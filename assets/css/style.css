@@ -432,3 +432,56 @@ a:hover {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* Estilos para Ventas Libres */
+.border-left-purple {
+    border-left: 0.25rem solid #6f42c1 !important;
+}
+
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+.bg-purple {
+    background-color: #6f42c1 !important;
+}
+
+.btn-purple {
+    background-color: #6f42c1;
+    border-color: #6f42c1;
+    color: white;
+}
+
+.btn-purple:hover {
+    background-color: #5a359a;
+    border-color: #5a359a;
+    color: white;
+}
+
+/* Estilos adicionales para las tarjetas del dashboard */
+.card.border-left-purple {
+    border-left-width: 0.25rem;
+}
+
+.card.border-left-dark {
+    border-left: 0.25rem solid #343a40 !important;
+}
+
+/* Mejoras visuales para las tablas de ventas libres */
+.table-ventas-libres {
+    font-size: 0.9rem;
+}
+
+.table-ventas-libres th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-top: none;
+}
+
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
