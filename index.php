@@ -42,69 +42,7 @@ $user_role = $_SESSION['user_role'];
 
     <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-fixed pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="index.php">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="ventas/nueva_venta.php">
-                                <i class="fas fa-plus-circle"></i>
-                                Nueva Venta
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="ventas/lista_ventas.php">
-                                <i class="fas fa-list"></i>
-                                Lista de Ventas
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="ventas/venta_libre.php">
-                                <i class="fas fa-hand-holding-usd"></i>
-                                Nueva Venta Libre
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="ventas/lista_ventas_libres.php">
-                                <i class="fas fa-clipboard-list"></i>
-                                Lista Ventas Libres
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="productos/lista_productos.php">
-                                <i class="fas fa-book-open"></i> Productos
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="clientes/lista_clientes.php">
-                                <i class="fas fa-users"></i> Clientes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="notas/lista_notas.php">
-                                <i class="fas fa-sticky-note"></i> Notas
-                            </a>
-                        </li>
-                        <?php if ($user_role == 'admin'): ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="reportes/reportes.php">
-                                <i class="fas fa-chart-bar"></i> Reportes
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="usuarios/lista_usuarios.php">
-                                <i class="fas fa-user-cog"></i> Usuarios
-                            </a>
-                        </li>
-                        <?php endif; ?>
-                    </ul>
-                </div>
-            </nav>
+            <?php include 'includes/sidebar.php'; ?>
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">

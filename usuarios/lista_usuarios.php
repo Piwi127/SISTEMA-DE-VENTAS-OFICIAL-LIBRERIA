@@ -62,21 +62,17 @@ if (isset($_GET['msg'])) {
     <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="../index.php">
-                <i class="fas fa-book"></i> Librería Belén
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="../index.php">Dashboard</a>
-                <a class="nav-link" href="../logout.php">Cerrar Sesión</a>
-            </div>
-        </div>
-    </nav>
+<?php include '../includes/navbar.php'; ?>
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
+<div class="container-fluid">
+    <div class="row">
+        <?php include '../includes/sidebar.php'; ?>
+        
+        <!-- Main content -->
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <div class="container mt-4">
+                <div class="row">
+                    <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h2><i class="fas fa-users-cog"></i> Gestión de Usuarios</h2>
                     <a href="nuevo_usuario.php" class="btn btn-primary">
@@ -229,9 +225,11 @@ if (isset($_GET['msg'])) {
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     

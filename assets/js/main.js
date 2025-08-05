@@ -102,18 +102,14 @@ function updateCarritoDisplay() {
                                 <small class="text-muted">S/ ${item.precio.toFixed(2)} c/u</small>
                             </div>
                             <div class="col-md-3">
-                                <div class="input-group input-group-sm">
-                                    <button class="btn btn-outline-secondary" type="button" 
-                                            onclick="actualizarCantidad(${item.id}, ${item.cantidad - 1})">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
+                                <div class="d-flex flex-column align-items-center">
+                                    <label class="form-label mb-1 small">Cantidad</label>
                                     <input type="number" class="form-control text-center" 
                                            value="${item.cantidad}" min="1" max="${item.stock}"
-                                           onchange="actualizarCantidad(${item.id}, this.value)">
-                                    <button class="btn btn-outline-secondary" type="button" 
-                                            onclick="actualizarCantidad(${item.id}, ${item.cantidad + 1})">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
+                                           style="width: 80px;"
+                                           onchange="actualizarCantidad(${item.id}, this.value)"
+                                           oninput="actualizarCantidad(${item.id}, this.value)">
+                                    <small class="text-muted mt-1">Max: ${item.stock}</small>
                                 </div>
                             </div>
                             <div class="col-md-2">

@@ -23,7 +23,13 @@ include '../includes/header.php';
 include '../includes/navbar.php';
 ?>
 
-<div class="container mt-5">
+<div class="container-fluid">
+    <div class="row">
+        <?php include '../includes/sidebar.php'; ?>
+        
+        <!-- Main content -->
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <div class="container mt-5">
     <h2>Notas</h2>
     
     <?php if (isset($_SESSION['message'])): ?>
@@ -289,5 +295,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+            </div>
+        </main>
+    </div>
+</div>
 
 <?php include '../includes/footer.php'; ?>

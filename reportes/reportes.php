@@ -73,21 +73,17 @@ $clientes_top = $stmt->fetchAll();
     <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="../index.php">
-                <i class="fas fa-book"></i> Librería Belén
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="../index.php">Dashboard</a>
-                <a class="nav-link" href="../logout.php">Cerrar Sesión</a>
-            </div>
-        </div>
-    </nav>
+<?php include '../includes/navbar.php'; ?>
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-12">
+<div class="container-fluid">
+    <div class="row">
+        <?php include '../includes/sidebar.php'; ?>
+        
+        <!-- Main content -->
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <div class="container mt-4">
+                <div class="row">
+                    <div class="col-12">
                 <h2><i class="fas fa-chart-bar"></i> Reportes y Estadísticas</h2>
                 <hr>
             </div>
@@ -283,6 +279,13 @@ $clientes_top = $stmt->fetchAll();
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
     <?php include '../includes/footer.php'; ?>
 </body>
 </html>

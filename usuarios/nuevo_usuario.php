@@ -70,21 +70,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="../index.php">
-                <i class="fas fa-book"></i> Librería Belén
-            </a>
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="../index.php">Dashboard</a>
-                <a class="nav-link" href="../logout.php">Cerrar Sesión</a>
-            </div>
-        </div>
-    </nav>
+<?php include '../includes/navbar.php'; ?>
 
-    <div class="container mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
+<div class="container-fluid">
+    <div class="row">
+        <?php include '../includes/sidebar.php'; ?>
+        
+        <!-- Main content -->
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <div class="container mt-4">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
                         <h5 class="mb-0">
@@ -229,9 +225,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
