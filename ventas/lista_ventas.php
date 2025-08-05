@@ -109,6 +109,11 @@ $ventas = $stmt->fetchAll();
                                 <i class="fas fa-users"></i> Clientes
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="../notas/lista_notas.php">
+                                <i class="fas fa-sticky-note"></i> Notas
+                            </a>
+                        </li>
                         <?php if ($user_role == 'admin'): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="../reportes/reportes.php">
@@ -402,5 +407,7 @@ $ventas = $stmt->fetchAll();
             }
         }
     </script>
+    
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>

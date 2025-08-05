@@ -132,6 +132,22 @@ CREATE TABLE configuracion (
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Tabla de notas
+CREATE TABLE notas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    asunto VARCHAR(255) NOT NULL,
+    cuerpo_mensaje TEXT NOT NULL,
+    fecha_recordatorio DATETIME,
+    estado ENUM('pendiente', 'completada') DEFAULT 'pendiente',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES usuarios(id),
+    INDEX idx_user (user_id),
+    INDEX idx_fecha_recordatorio (fecha_recordatorio),
+    INDEX idx_estado (estado)
+);
+
 -- Insertar datos iniciales
 
 -- Categorías de ejemplo

@@ -19,8 +19,8 @@ $user_role = $_SESSION['user_role'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Ventas - Librería Belén</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome.min.css" rel="stylesheet">
     <link href="assets/css/style.css" rel="stylesheet">
 </head>
 <body>
@@ -69,6 +69,11 @@ $user_role = $_SESSION['user_role'];
                         <li class="nav-item">
                             <a class="nav-link" href="clientes/lista_clientes.php">
                                 <i class="fas fa-users"></i> Clientes
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="notas/lista_notas.php">
+                                <i class="fas fa-sticky-note"></i> Notas
                             </a>
                         </li>
                         <?php if ($user_role == 'admin'): ?>
@@ -220,7 +225,10 @@ $user_role = $_SESSION['user_role'];
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendor/bootstrap.bundle.min.js"></script>
     <script src="assets/js/main.js"></script>
+    
+    <!-- Sistema de Notificaciones -->
+    <script src="assets/js/notificaciones.js"></script>
 </body>
 </html>

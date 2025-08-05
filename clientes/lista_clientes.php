@@ -77,6 +77,11 @@ $clientes = getClientes($search);
                                 <i class="fas fa-users"></i> Clientes
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="../notas/lista_notas.php">
+                                <i class="fas fa-sticky-note"></i> Notas
+                            </a>
+                        </li>
                         <?php if ($user_role == 'admin'): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="../reportes/reportes.php">
@@ -374,5 +379,7 @@ $clientes = getClientes($search);
             font-size: 14px;
         }
     </style>
+    
+    <?php include '../includes/footer.php'; ?>
 </body>
 </html>

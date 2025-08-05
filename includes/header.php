@@ -12,10 +12,10 @@
     <title><?php echo isset($page_title) ? $page_title . ' - ' : ''; ?>Sistema de Ventas - Librería Belén</title>
     
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo isset($vendor_path) ? $vendor_path : '../assets/vendor/bootstrap.min.css'; ?>" rel="stylesheet">
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="<?php echo isset($vendor_path) ? str_replace('bootstrap.min.css', 'fontawesome.min.css', $vendor_path) : '../assets/vendor/fontawesome.min.css'; ?>">
     
     <!-- Estilos personalizados -->
     <link rel="stylesheet" href="<?php echo isset($css_path) ? $css_path : '../assets/css/style.css'; ?>">
