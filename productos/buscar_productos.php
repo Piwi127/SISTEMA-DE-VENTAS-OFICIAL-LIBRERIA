@@ -27,6 +27,8 @@ if (empty($search) || strlen($search) < 2) {
 }
 
 try {
+    $pdo = getConnection();
+    
     // Buscar productos que coincidan con el término
     $stmt = $pdo->prepare("
         SELECT 

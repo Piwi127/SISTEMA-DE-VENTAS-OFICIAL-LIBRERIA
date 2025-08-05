@@ -5,13 +5,13 @@ require_once __DIR__ . '/../config/database.php';
 function getDashboardStats() {
     $pdo = getConnection();
     
-    // Ventas de hoy
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_hoy FROM ventas WHERE DATE(fecha) = CURDATE()");
+    // Ventas de hoy (solo activas)
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_hoy FROM ventas WHERE DATE(fecha) = CURDATE() AND estado != 'cancelada'");
     $stmt->execute();
     $ventas_hoy = $stmt->fetch()['ventas_hoy'];
     
-    // Ventas del mes
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_mes FROM ventas WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE())");
+    // Ventas del mes (solo activas)
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_mes FROM ventas WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE()) AND estado != 'cancelada'");
     $stmt->execute();
     $ventas_mes = $stmt->fetch()['ventas_mes'];
     
@@ -37,9 +37,10 @@ function getDashboardStats() {
 function getVentasRecientes($limit = 10) {
     $pdo = getConnection();
     $stmt = $pdo->prepare("
-        SELECT v.id, v.total, v.fecha, c.nombre as cliente_nombre 
+        SELECT v.id, v.total, v.fecha, v.estado, c.nombre as cliente_nombre 
         FROM ventas v 
         LEFT JOIN clientes c ON v.cliente_id = c.id 
+        WHERE v.estado != 'cancelada'
         ORDER BY v.fecha DESC 
         LIMIT :limit
     ");
@@ -66,7 +67,7 @@ function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
 
-// Función para obtener todos los productos
+// Función para obtener todos los productos (solo activos para ventas)
 function getProductos($search = '', $categoria = '') {
     $pdo = getConnection();
     $sql = "SELECT p.*, c.nombre as categoria_nombre FROM productos p 
@@ -87,6 +88,33 @@ function getProductos($search = '', $categoria = '') {
     }
     
     $sql .= " ORDER BY p.nombre";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll();
+}
+
+// Función para obtener todos los productos (activos e inactivos para administración)
+function getAllProductos($search = '', $categoria = '') {
+    $pdo = getConnection();
+    $sql = "SELECT p.*, c.nombre as categoria_nombre FROM productos p 
+            LEFT JOIN categorias c ON p.categoria_id = c.id 
+            WHERE 1=1";
+    
+    $params = [];
+    
+    if (!empty($search)) {
+        $sql .= " AND (p.nombre LIKE ? OR p.codigo LIKE ?)";
+        $params[] = "%$search%";
+        $params[] = "%$search%";
+    }
+    
+    if (!empty($categoria)) {
+        $sql .= " AND p.categoria_id = ?";
+        $params[] = $categoria;
+    }
+    
+    $sql .= " ORDER BY p.activo DESC, p.nombre";
     
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);

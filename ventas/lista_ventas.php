@@ -20,7 +20,7 @@ $cliente_search = isset($_GET['cliente']) ? $_GET['cliente'] : '';
 // Obtener ventas
 $pdo = getConnection();
 $sql = "
-    SELECT v.id, v.total, v.fecha, c.nombre as cliente_nombre, u.nombre as usuario_nombre
+    SELECT v.id, v.total, v.fecha, v.estado, c.nombre as cliente_nombre, u.nombre as usuario_nombre
     FROM ventas v 
     LEFT JOIN clientes c ON v.cliente_id = c.id 
     LEFT JOIN usuarios u ON v.usuario_id = u.id 
@@ -196,6 +196,7 @@ $ventas = $stmt->fetchAll();
                                             <th>Total</th>
                                             <th>Fecha</th>
                                             <th>Vendedor</th>
+                                            <th>Estado</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
@@ -220,6 +221,13 @@ $ventas = $stmt->fetchAll();
                                                     <?php echo htmlspecialchars($venta['usuario_nombre'] ?? 'Usuario eliminado'); ?>
                                                 </td>
                                                 <td>
+                                                    <?php if ($venta['estado'] === 'cancelada'): ?>
+                                                        <span class="badge bg-danger">Cancelada</span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-success">Activa</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
                                                     <div class="btn-group" role="group">
                                                         <a href="detalle_venta.php?id=<?php echo $venta['id']; ?>" 
                                                            class="btn btn-sm btn-outline-info" 
@@ -231,7 +239,7 @@ $ventas = $stmt->fetchAll();
                                                            data-bs-toggle="tooltip" title="Imprimir" target="_blank">
                                                             <i class="fas fa-print"></i>
                                                         </a>
-                                                        <?php if ($user_role == 'admin'): ?>
+                                                        <?php if ($user_role == 'admin' && $venta['estado'] !== 'cancelada'): ?>
                                                             <button type="button" 
                                                                     class="btn btn-sm btn-outline-danger" 
                                                                     data-bs-toggle="tooltip" title="Anular Venta"
@@ -245,10 +253,24 @@ $ventas = $stmt->fetchAll();
                                         <?php endforeach; ?>
                                     </tbody>
                                     <tfoot>
+                                        <?php 
+                                        $ventasActivas = array_filter($ventas, function($venta) { return $venta['estado'] !== 'cancelada'; });
+                                        $ventasAnuladas = array_filter($ventas, function($venta) { return $venta['estado'] === 'cancelada'; });
+                                        $totalActivas = array_sum(array_column($ventasActivas, 'total'));
+                                        $countActivas = count($ventasActivas);
+                                        $countAnuladas = count($ventasAnuladas);
+                                        ?>
                                         <tr class="table-info">
-                                            <td colspan="2"><strong>Total de ventas mostradas:</strong></td>
-                                            <td><strong>S/ <?php echo number_format(array_sum(array_column($ventas, 'total')), 2); ?></strong></td>
-                                            <td colspan="3"><strong><?php echo count($ventas); ?> ventas</strong></td>
+                                            <td colspan="3"><strong>Total de ventas activas:</strong></td>
+                                            <td><strong>S/ <?php echo number_format($totalActivas, 2); ?></strong></td>
+                                            <td colspan="3">
+                                                <strong>
+                                                    <?php echo $countActivas; ?> ventas
+                                                    <?php if ($countAnuladas > 0): ?>
+                                                        - <?php echo $countAnuladas; ?> ventas anuladas
+                                                    <?php endif; ?>
+                                                </strong>
+                                            </td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -270,7 +292,7 @@ $ventas = $stmt->fetchAll();
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
                                             <?php
                                             $ventas_hoy = array_filter($ventas, function($v) {
-                                                return date('Y-m-d', strtotime($v['fecha'])) == date('Y-m-d');
+                                                return date('Y-m-d', strtotime($v['fecha'])) == date('Y-m-d') && $v['estado'] !== 'cancelada';
                                             });
                                             echo count($ventas_hoy);
                                             ?>
@@ -290,10 +312,10 @@ $ventas = $stmt->fetchAll();
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
                                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                            Total Mostrado
+                                            Total Activas
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            S/ <?php echo number_format(array_sum(array_column($ventas, 'total')), 2); ?>
+                                            S/ <?php echo number_format($totalActivas, 2); ?>
                                         </div>
                                     </div>
                                     <div class="col-auto">
@@ -310,10 +332,10 @@ $ventas = $stmt->fetchAll();
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2">
                                         <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                            Promedio por Venta
+                                            Promedio por Venta Activa
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            S/ <?php echo count($ventas) > 0 ? number_format(array_sum(array_column($ventas, 'total')) / count($ventas), 2) : '0.00'; ?>
+                                            S/ <?php echo $countActivas > 0 ? number_format($totalActivas / $countActivas, 2) : '0.00'; ?>
                                         </div>
                                     </div>
                                     <div class="col-auto">
@@ -340,9 +362,43 @@ $ventas = $stmt->fetchAll();
         
         // Función para anular venta (solo admin)
         function anularVenta(ventaId) {
-            if (confirm('¿Está seguro de que desea anular esta venta? Esta acción no se puede deshacer.')) {
-                // Aquí iría la lógica para anular la venta
-                showAlert('Funcionalidad de anular venta en desarrollo', 'info');
+            if (confirm('¿Está seguro de que desea anular esta venta? Esta acción restaurará el stock de los productos y no se puede deshacer.')) {
+                // Mostrar indicador de carga
+                const button = event.target.closest('button');
+                const originalContent = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                button.disabled = true;
+                
+                // Realizar petición AJAX
+                fetch('anular_venta.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'venta_id=' + ventaId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert(data.message, 'success');
+                        // Recargar la página después de 2 segundos
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        showAlert(data.message, 'error');
+                        // Restaurar el botón
+                        button.innerHTML = originalContent;
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Error al procesar la solicitud', 'error');
+                    // Restaurar el botón
+                    button.innerHTML = originalContent;
+                    button.disabled = false;
+                });
             }
         }
     </script>

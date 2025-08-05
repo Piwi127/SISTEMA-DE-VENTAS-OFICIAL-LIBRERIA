@@ -17,7 +17,7 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 $categoria = isset($_GET['categoria']) ? $_GET['categoria'] : '';
 
 // Obtener productos y categorías
-$productos = getProductos($search, $categoria);
+$productos = getAllProductos($search, $categoria);
 $categorias = getCategorias();
 ?>
 
@@ -666,6 +666,50 @@ $categorias = getCategorias();
                     item.style.color = 'black';
                 }
             });
+        }
+        
+        // Función para activar/desactivar productos (solo admin)
+        function toggleProducto(productoId, nuevoEstado) {
+            const accion = nuevoEstado ? 'activar' : 'desactivar';
+            
+            if (confirm(`¿Está seguro de que desea ${accion} este producto?`)) {
+                // Mostrar indicador de carga
+                const button = event.target.closest('button');
+                const originalContent = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                button.disabled = true;
+                
+                // Realizar petición AJAX
+                fetch('toggle_producto.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `producto_id=${productoId}&activo=${nuevoEstado}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showAlert(data.message, 'success');
+                        // Recargar la página después de 1.5 segundos
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    } else {
+                        showAlert(data.message, 'error');
+                        // Restaurar botón
+                        button.innerHTML = originalContent;
+                        button.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('Error al procesar la solicitud', 'error');
+                    // Restaurar botón
+                    button.innerHTML = originalContent;
+                    button.disabled = false;
+                });
+            }
         }
     </script>
 </body>
