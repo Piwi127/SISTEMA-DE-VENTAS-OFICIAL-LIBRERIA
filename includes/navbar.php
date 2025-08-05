@@ -28,6 +28,9 @@
                 <a class="nav-link" href="../reportes/reportes.php">Reportes</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="../notas/lista_notas.php">Notas</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="../logout.php">Cerrar Sesión</a>
             </li>
         </ul>
