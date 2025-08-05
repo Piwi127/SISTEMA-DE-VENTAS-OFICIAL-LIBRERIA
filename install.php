@@ -48,6 +48,32 @@ function createDatabase($host, $user, $pass, $dbname) {
     }
 }
 
+// Función para crear archivo de configuración de base de datos (optimizada)
+function createDatabaseConfig($host, $user, $pass, $dbname) {
+    $config = "<?php\n";
+    $config .= "// Configuración de la base de datos\n";
+    $config .= "define('DB_HOST', '$host');\n";
+    $config .= "define('DB_USER', '$user');\n";
+    $config .= "define('DB_PASS', '$pass');\n";
+    $config .= "define('DB_NAME', '$dbname');\n\n";
+    $config .= "// Crear conexión\n";
+    $config .= "try {\n";
+    $config .= "    \$pdo = new PDO(\"mysql:host=\" . DB_HOST . \";dbname=\" . DB_NAME . \";charset=utf8\", DB_USER, DB_PASS);\n";
+    $config .= "    \$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n";
+    $config .= "    \$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);\n";
+    $config .= "} catch(PDOException \$e) {\n";
+    $config .= "    die(\"Error de conexión: \" . \$e->getMessage());\n";
+    $config .= "}\n\n";
+    $config .= "// Función para obtener la conexión\n";
+    $config .= "function getConnection() {\n";
+    $config .= "    global \$pdo;\n";
+    $config .= "    return \$pdo;\n";
+    $config .= "}\n";
+    $config .= "?>";
+    
+    file_put_contents(__DIR__ . '/config/database.php', $config);
+}
+
 // Función para ejecutar el script SQL
 function executeSQLFile($pdo, $filename) {
     $sql = file_get_contents($filename);
@@ -115,29 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo = createDatabase($host, $user, $pass, $dbname);
             
-            // Guardar configuración
-            $config = "<?php\n";
-            $config .= "// Configuración de la base de datos\n";
-            $config .= "define('DB_HOST', '$host');\n";
-            $config .= "define('DB_USER', '$user');\n";
-            $config .= "define('DB_PASS', '$pass');\n";
-            $config .= "define('DB_NAME', '$dbname');\n\n";
-            $config .= "// Crear conexión\n";
-            $config .= "try {\n";
-            $config .= "    \$pdo = new PDO(\"mysql:host=\" . DB_HOST . \";dbname=\" . DB_NAME . \";charset=utf8\", DB_USER, DB_PASS);\n";
-            $config .= "    \$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);\n";
-            $config .= "    \$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);\n";
-            $config .= "} catch(PDOException \$e) {\n";
-            $config .= "    die(\"Error de conexión: \" . \$e->getMessage());\n";
-            $config .= "}\n\n";
-            $config .= "// Función para obtener la conexión\n";
-            $config .= "function getConnection() {\n";
-            $config .= "    global \$pdo;\n";
-            $config .= "    return \$pdo;\n";
-            $config .= "}\n";
-            $config .= "?>";
-            
-            file_put_contents(__DIR__ . '/config/database.php', $config);
+            // Crear configuración de base de datos usando función optimizada
+            createDatabaseConfig($host, $user, $pass, $dbname);
             
             $step = 3;
             $message = 'Conexión exitosa. Configuración guardada.';

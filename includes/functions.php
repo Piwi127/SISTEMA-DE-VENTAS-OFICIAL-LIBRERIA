@@ -67,35 +67,8 @@ function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
 
-// Función para obtener todos los productos (solo activos para ventas)
-function getProductos($search = '', $categoria = '') {
-    $pdo = getConnection();
-    $sql = "SELECT p.*, c.nombre as categoria_nombre FROM productos p 
-            LEFT JOIN categorias c ON p.categoria_id = c.id 
-            WHERE p.activo = 1";
-    
-    $params = [];
-    
-    if (!empty($search)) {
-        $sql .= " AND (p.nombre LIKE ? OR p.codigo LIKE ?)";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-    }
-    
-    if (!empty($categoria)) {
-        $sql .= " AND p.categoria_id = ?";
-        $params[] = $categoria;
-    }
-    
-    $sql .= " ORDER BY p.nombre";
-    
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    return $stmt->fetchAll();
-}
-
-// Función para obtener todos los productos (activos e inactivos para administración)
-function getAllProductos($search = '', $categoria = '') {
+// Función consolidada para obtener productos (optimizada)
+function getProductos($search = '', $categoria = '', $incluir_inactivos = false) {
     $pdo = getConnection();
     $sql = "SELECT p.*, c.nombre as categoria_nombre FROM productos p 
             LEFT JOIN categorias c ON p.categoria_id = c.id 
@@ -103,6 +76,11 @@ function getAllProductos($search = '', $categoria = '') {
     
     $params = [];
     
+    // Filtrar por estado activo si no se incluyen inactivos
+    if (!$incluir_inactivos) {
+        $sql .= " AND p.activo = 1";
+    }
+    
     if (!empty($search)) {
         $sql .= " AND (p.nombre LIKE ? OR p.codigo LIKE ?)";
         $params[] = "%$search%";
@@ -114,11 +92,21 @@ function getAllProductos($search = '', $categoria = '') {
         $params[] = $categoria;
     }
     
-    $sql .= " ORDER BY p.activo DESC, p.nombre";
+    // Ordenar por estado activo primero si se incluyen inactivos
+    if ($incluir_inactivos) {
+        $sql .= " ORDER BY p.activo DESC, p.nombre";
+    } else {
+        $sql .= " ORDER BY p.nombre";
+    }
     
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
     return $stmt->fetchAll();
+}
+
+// Función de compatibilidad para getAllProductos (mantener retrocompatibilidad)
+function getAllProductos($search = '', $categoria = '') {
+    return getProductos($search, $categoria, true);
 }
 
 // Función para obtener producto por ID
