@@ -337,7 +337,7 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 Para soporte técnico o consultas:
 
 - **Email**: soporte@libreriabelen.com
-- **Teléfono**: +52 555-0100
+- **Teléfono**: +51 947 872 207
 - **Documentación**: [Wiki del proyecto]()
 
 ## 🙏 Agradecimientos
@@ -351,4 +351,4 @@ Para soporte técnico o consultas:
 
 **Desarrollado con ❤️ para Librería Belén**
 
-*Versión 1.0.0 - Enero 2024*
+*Versión 1.0.0 - Agosto 2025*
