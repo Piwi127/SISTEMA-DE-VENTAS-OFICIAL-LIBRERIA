@@ -1,4 +1,9 @@
 <?php
+/**
+ * Interfaz para la creación de una nueva venta.
+ * Muestra una lista de productos filtrables y un carrito de compras interactivo.
+ * La lógica del carrito (agregar, quitar, calcular total) se maneja con JavaScript en el lado del cliente.
+ */
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';

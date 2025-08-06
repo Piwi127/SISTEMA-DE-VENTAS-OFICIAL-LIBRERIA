@@ -1,51 +1,35 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
 
-// Función para obtener estadísticas del dashboard
+/**
+ * Obtiene las estadísticas principales para el dashboard.
+ * Realiza una única consulta a la base de datos para mayor eficiencia.
+ * @return array Un array asociativo con las estadísticas.
+ */
 function getDashboardStats() {
     $pdo = getConnection();
     
-    // Ventas de hoy (solo activas)
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_hoy FROM ventas WHERE DATE(fecha) = CURDATE() AND estado != 'cancelada'");
-    $stmt->execute();
-    $ventas_hoy = $stmt->fetch()['ventas_hoy'];
+    $query = "
+        SELECT
+            (SELECT COALESCE(SUM(total), 0) FROM ventas WHERE DATE(fecha) = CURDATE() AND estado != 'cancelada') as ventas_hoy,
+            (SELECT COALESCE(SUM(total), 0) FROM ventas WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE()) AND estado != 'cancelada') as ventas_mes,
+            (SELECT COALESCE(SUM(total), 0) FROM ventas_libres WHERE DATE(fecha_venta) = CURDATE() AND estado = 'activa') as ventas_libres_hoy,
+            (SELECT COALESCE(SUM(total), 0) FROM ventas_libres WHERE MONTH(fecha_venta) = MONTH(CURDATE()) AND YEAR(fecha_venta) = YEAR(CURDATE()) AND estado = 'activa') as ventas_libres_mes,
+            (SELECT COUNT(*) FROM productos WHERE activo = 1) as total_productos,
+            (SELECT COUNT(*) FROM clientes WHERE activo = 1) as total_clientes
+    ";
     
-    // Ventas del mes (solo activas)
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_mes FROM ventas WHERE MONTH(fecha) = MONTH(CURDATE()) AND YEAR(fecha) = YEAR(CURDATE()) AND estado != 'cancelada'");
+    $stmt = $pdo->prepare($query);
     $stmt->execute();
-    $ventas_mes = $stmt->fetch()['ventas_mes'];
     
-    // Ventas libres de hoy (solo activas)
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_libres_hoy FROM ventas_libres WHERE DATE(fecha_venta) = CURDATE() AND estado = 'activa'");
-    $stmt->execute();
-    $ventas_libres_hoy = $stmt->fetch()['ventas_libres_hoy'];
-    
-    // Ventas libres del mes (solo activas)
-    $stmt = $pdo->prepare("SELECT COALESCE(SUM(total), 0) as ventas_libres_mes FROM ventas_libres WHERE MONTH(fecha_venta) = MONTH(CURDATE()) AND YEAR(fecha_venta) = YEAR(CURDATE()) AND estado = 'activa'");
-    $stmt->execute();
-    $ventas_libres_mes = $stmt->fetch()['ventas_libres_mes'];
-    
-    // Total productos
-    $stmt = $pdo->prepare("SELECT COUNT(*) as total_productos FROM productos WHERE activo = 1");
-    $stmt->execute();
-    $total_productos = $stmt->fetch()['total_productos'];
-    
-    // Total clientes
-    $stmt = $pdo->prepare("SELECT COUNT(*) as total_clientes FROM clientes WHERE activo = 1");
-    $stmt->execute();
-    $total_clientes = $stmt->fetch()['total_clientes'];
-    
-    return [
-        'ventas_hoy' => $ventas_hoy,
-        'ventas_mes' => $ventas_mes,
-        'ventas_libres_hoy' => $ventas_libres_hoy,
-        'ventas_libres_mes' => $ventas_libres_mes,
-        'total_productos' => $total_productos,
-        'total_clientes' => $total_clientes
-    ];
+    return $stmt->fetch();
 }
 
-// Función para obtener ventas recientes
+/**
+ * Obtiene una lista de las ventas más recientes.
+ * @param int $limit El número máximo de ventas a obtener.
+ * @return array Un array de ventas.
+ */
 function getVentasRecientes($limit = 10) {
     $pdo = getConnection();
     $stmt = $pdo->prepare("
@@ -61,7 +45,12 @@ function getVentasRecientes($limit = 10) {
     return $stmt->fetchAll();
 }
 
-// Función para autenticar usuario
+/**
+ * Autentica a un usuario a partir de su email y contraseña.
+ * @param string $email El email del usuario.
+ * @param string $password La contraseña sin encriptar.
+ * @return array|false Los datos del usuario si la autenticación es exitosa, de lo contrario false.
+ */
 function authenticateUser($email, $password) {
     $pdo = getConnection();
     $stmt = $pdo->prepare("SELECT id, nombre, email, password, rol FROM usuarios WHERE email = ? AND activo = 1");
@@ -74,12 +63,21 @@ function authenticateUser($email, $password) {
     return false;
 }
 
-// Función para verificar si el usuario ha iniciado sesión
+/**
+ * Verifica si hay un usuario logueado en la sesión actual.
+ * @return bool True si el usuario ha iniciado sesión, false de lo contrario.
+ */
 function isLoggedIn() {
     return isset($_SESSION['user_id']);
 }
 
-// Función consolidada para obtener productos (optimizada)
+/**
+ * Obtiene una lista de productos, con opciones de filtrado y búsqueda.
+ * @param string $search Término de búsqueda para nombre o código de producto.
+ * @param string $categoria ID de la categoría para filtrar.
+ * @param bool $incluir_inactivos Si es true, incluye productos marcados como inactivos.
+ * @return array Un array de productos.
+ */
 function getProductos($search = '', $categoria = '', $incluir_inactivos = false) {
     $pdo = getConnection();
     $sql = "SELECT p.*, c.nombre as categoria_nombre FROM productos p 
@@ -116,12 +114,22 @@ function getProductos($search = '', $categoria = '', $incluir_inactivos = false)
     return $stmt->fetchAll();
 }
 
-// Función de compatibilidad para getAllProductos (mantener retrocompatibilidad)
+/**
+ * Función de compatibilidad para obtener todos los productos, incluyendo inactivos.
+ * @deprecated Usar getProductos($search, $categoria, true) en su lugar.
+ * @param string $search Término de búsqueda.
+ * @param string $categoria ID de la categoría.
+ * @return array Un array de productos.
+ */
 function getAllProductos($search = '', $categoria = '') {
     return getProductos($search, $categoria, true);
 }
 
-// Función para obtener producto por ID
+/**
+ * Obtiene un producto específico por su ID.
+ * @param int $id El ID del producto.
+ * @return array|false Los datos del producto o false si no se encuentra.
+ */
 function getProductoById($id) {
     $pdo = getConnection();
     $stmt = $pdo->prepare("SELECT * FROM productos WHERE id = ? AND activo = 1");
@@ -129,7 +137,11 @@ function getProductoById($id) {
     return $stmt->fetch();
 }
 
-// Función para obtener todos los clientes
+/**
+ * Obtiene una lista de clientes activos, con opción de búsqueda.
+ * @param string $search Término de búsqueda para nombre, email o teléfono.
+ * @return array Un array de clientes.
+ */
 function getClientes($search = '') {
     $pdo = getConnection();
     $sql = "SELECT * FROM clientes WHERE activo = 1";
@@ -149,7 +161,11 @@ function getClientes($search = '') {
     return $stmt->fetchAll();
 }
 
-// Función para obtener cliente por ID
+/**
+ * Obtiene un cliente específico por su ID.
+ * @param int $id El ID del cliente.
+ * @return array|false Los datos del cliente o false si no se encuentra.
+ */
 function getClienteById($id) {
     $pdo = getConnection();
     $stmt = $pdo->prepare("SELECT * FROM clientes WHERE id = ? AND activo = 1");
@@ -157,7 +173,16 @@ function getClienteById($id) {
     return $stmt->fetch();
 }
 
-// Función para crear una nueva venta
+/**
+ * Crea un nuevo registro de venta, incluyendo sus detalles y actualizando el stock.
+ * Utiliza una transacción para garantizar la integridad de los datos.
+ * @param int $cliente_id El ID del cliente.
+ * @param array $productos Un array con los productos de la venta.
+ * @param float $total El importe total de la venta.
+ * @param int $usuario_id El ID del usuario que realiza la venta.
+ * @return int El ID de la nueva venta creada.
+ * @throws Exception Si ocurre un error durante la transacción.
+ */
 function crearVenta($cliente_id, $productos, $total, $usuario_id) {
     $pdo = getConnection();
     
@@ -194,7 +219,10 @@ function crearVenta($cliente_id, $productos, $total, $usuario_id) {
     }
 }
 
-// Función para obtener categorías
+/**
+ * Obtiene una lista de todas las categorías activas.
+ * @return array Un array de categorías.
+ */
 function getCategorias() {
     $pdo = getConnection();
     $stmt = $pdo->prepare("SELECT * FROM categorias WHERE activo = 1 ORDER BY nombre");
@@ -202,14 +230,18 @@ function getCategorias() {
     return $stmt->fetchAll();
 }
 
-// Función para validar stock
-function validarStock($producto_id, $cantidad) {
-    $pdo = getConnection();
-    $stmt = $pdo->prepare("SELECT stock FROM productos WHERE id = ?");
-    $stmt->execute([$producto_id]);
-    $producto = $stmt->fetch();
-    
-    return $producto && $producto['stock'] >= $cantidad;
+/**
+ * Valida si hay suficiente stock para un producto específico.
+ * @param int $producto_id El ID del producto a verificar.
+ * @param int $cantidad_requerida La cantidad que se desea vender.
+ * @return bool True si hay suficiente stock, false de lo contrario.
+ */
+function validarStock($producto_id, $cantidad_requerida) {
+    $producto = getProductoById($producto_id);
+    if ($producto && $producto['stock'] >= $cantidad_requerida) {
+        return true;
+    }
+    return false;
 }
 
 // Función para formatear fecha

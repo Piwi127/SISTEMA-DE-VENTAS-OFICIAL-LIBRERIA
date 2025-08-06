@@ -1,4 +1,9 @@
 <?php
+/**
+ * Página para listar y gestionar los productos existentes.
+ * Permite filtrar productos por término de búsqueda y por categoría.
+ * Solo los administradores pueden ver todos los productos (activos e inactivos) y acceder a las acciones de edición.
+ */
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
@@ -17,7 +22,8 @@ $search = isset($_GET['search']) ? $_GET['search'] : '';
 $categoria = isset($_GET['categoria']) ? $_GET['categoria'] : '';
 
 // Obtener productos y categorías
-$productos = getAllProductos($search, $categoria);
+// Obtener productos y categorías
+$productos = getProductos($search, $categoria, true); // true para incluir inactivos en la vista de admin
 $categorias = getCategorias();
 ?>
 

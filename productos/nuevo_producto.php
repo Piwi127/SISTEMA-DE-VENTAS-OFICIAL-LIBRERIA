@@ -1,4 +1,9 @@
 <?php
+/**
+ * Página para la creación de un nuevo producto.
+ * Realiza validaciones de los datos del formulario antes de insertarlos en la base de datos.
+ * Solo accesible para usuarios con el rol de 'admin'.
+ */
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';

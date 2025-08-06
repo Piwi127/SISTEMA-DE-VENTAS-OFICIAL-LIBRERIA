@@ -1,4 +1,10 @@
 <?php
+/**
+ * Procesa los datos de una nueva venta enviados desde la interfaz de 'nueva_venta.php'.
+ * Recibe los datos vía POST, valida la información (cliente, productos, stock, total),
+ * y si todo es correcto, crea la venta en la base de datos utilizando una transacción.
+ * Devuelve una respuesta JSON con el resultado de la operación.
+ */
 session_start();
 require_once '../config/database.php';
 require_once '../includes/functions.php';
