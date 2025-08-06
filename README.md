@@ -2,16 +2,30 @@
 
 Sistema completo de gestión de ventas desarrollado en PHP para librerías y pequeños comercios.
 
-## ✨ SISTEMA OPTIMIZADO
+## ✨ Mejoras Recientes y Optimizaciones
 
-**¡Este sistema ha sido completamente optimizado!** Se han eliminado archivos duplicados, consolidado funciones y mejorado la estructura del código para mayor eficiencia y mantenibilidad.
+El sistema ha sido sometido a una serie de mejoras y optimizaciones para garantizar un rendimiento superior, mayor seguridad y una mejor experiencia de usuario. A continuación se detallan los cambios más importantes:
 
-### 🎯 Optimizaciones Implementadas
-- **7 archivos duplicados eliminados** (reducción de ~30% en tamaño)
-- **Funciones consolidadas** para mejor rendimiento
-- **Header común reutilizable** para eliminar duplicación HTML
-- **Instalador único optimizado** con configuración centralizada
-- **Estructura de código mejorada** para facilitar mantenimiento
+### 🚀 Rendimiento y Eficiencia
+
+- **Optimización de Consultas a la Base de Datos**: La función `getDashboardStats` ha sido refactorizada para utilizar una única consulta con subconsultas, reduciendo significativamente la carga en la base de datos y acelerando la carga del dashboard principal.
+- **Uso de Funciones Optimizadas**: Se ha estandarizado el uso de la función `getProductos` en lugar de la obsoleta `getAllProductos` en `productos/lista_productos.php`, mejorando la consistencia y el rendimiento.
+
+### 🛡️ Lógica de Negocio y Prevención de Errores
+
+- **Validación de Stock en Tiempo Real**: Se ha implementado la función `validarStock` en `includes/functions.php` y se ha integrado en `ventas/procesar_venta.php`. Esta mejora crítica previene que se realicen ventas si no hay suficiente stock disponible, garantizando la integridad del inventario.
+- **Corrección de Errores**: Se han solucionado errores de duplicación de funciones, como el caso de `validarStock`, asegurando un código más limpio y funcional.
+
+### 📖 Documentación y Mantenibilidad
+
+- **Comentarios en Español**: Se ha añadido documentación detallada en español a los archivos clave del sistema, incluyendo:
+  - `includes/functions.php`
+  - `productos/lista_productos.php`
+  - `productos/nuevo_producto.php`
+  - `ventas/nueva_venta.php`
+  - `ventas/procesar_venta.php`
+
+Estos comentarios explican la lógica de cada función y componente, facilitando el mantenimiento y la futura escalabilidad del proyecto.
 
 ## 🚀 Características
 
