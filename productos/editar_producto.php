@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $codigo = limpiarInput($_POST['codigo']);
     $nombre = limpiarInput($_POST['nombre']);
     $descripcion = limpiarInput($_POST['descripcion']);
-    $categoria_id = isset($_POST['categoria_id']) ? (int)$_POST['categoria_id'] : null;
+    $categoria_id = (isset($_POST['categoria_id']) && $_POST['categoria_id'] !== '') ? (int)$_POST['categoria_id'] : null;
     $precio = isset($_POST['precio']) ? floatval($_POST['precio']) : 0;
     $stock = isset($_POST['stock']) ? (int)$_POST['stock'] : 0;
     $stock_minimo = isset($_POST['stock_minimo']) ? (int)$_POST['stock_minimo'] : 5;
@@ -62,38 +62,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($stmt->fetch()) {
             $error = 'Ya existe otro producto con este código.';
         } else {
-            try {
-                $stmt = $pdo->prepare("
-                    UPDATE productos SET 
-                        codigo = ?, 
-                        nombre = ?, 
-                        descripcion = ?, 
-                        categoria_id = ?, 
-                        precio = ?, 
-                        stock = ?, 
-                        stock_minimo = ?, 
-                        activo = ?,
-                        fecha_actualizacion = CURRENT_TIMESTAMP
-                    WHERE id = ?
-                ");
-                
-                if ($stmt->execute([$codigo, $nombre, $descripcion, $categoria_id, $precio, $stock, $stock_minimo, $activo, $producto_id])) {
-                    $success = 'Producto actualizado correctamente.';
-                    
-                    // Actualizar los datos del producto para mostrar los cambios
-                    $stmt = $pdo->prepare("
-                        SELECT p.*, c.nombre as categoria_nombre 
-                        FROM productos p 
-                        LEFT JOIN categorias c ON p.categoria_id = c.id 
-                        WHERE p.id = ?
-                    ");
-                    $stmt->execute([$producto_id]);
-                    $producto = $stmt->fetch();
-                } else {
-                    $error = 'Error al actualizar el producto.';
+            // Validar que la categoría exista si se envió un valor
+            if ($categoria_id !== null) {
+                $stmt = $pdo->prepare("SELECT id FROM categorias WHERE id = ?");
+                $stmt->execute([$categoria_id]);
+                if (!$stmt->fetch()) {
+                    $error = 'La categoría seleccionada no existe.';
                 }
-            } catch (PDOException $e) {
-                $error = 'Error en la base de datos: ' . $e->getMessage();
+            }
+
+            if (!$error) {
+                try {
+                    $stmt = $pdo->prepare("
+                        UPDATE productos SET 
+                            codigo = ?, 
+                            nombre = ?, 
+                            descripcion = ?, 
+                            categoria_id = ?, 
+                            precio = ?, 
+                            stock = ?, 
+                            stock_minimo = ?, 
+                            activo = ?,
+                            fecha_actualizacion = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                    ");
+                    
+                    if ($stmt->execute([$codigo, $nombre, $descripcion, $categoria_id, $precio, $stock, $stock_minimo, $activo, $producto_id])) {
+                        $success = 'Producto actualizado correctamente.';
+                        
+                        // Actualizar los datos del producto para mostrar los cambios
+                        $stmt = $pdo->prepare("
+                            SELECT p.*, c.nombre as categoria_nombre 
+                            FROM productos p 
+                            LEFT JOIN categorias c ON p.categoria_id = c.id 
+                            WHERE p.id = ?
+                        ");
+                        $stmt->execute([$producto_id]);
+                        $producto = $stmt->fetch();
+                    } else {
+                        $error = 'Error al actualizar el producto.';
+                    }
+                } catch (PDOException $e) {
+                    $error = 'Error en la base de datos: ' . $e->getMessage();
+                }
             }
         }
     }

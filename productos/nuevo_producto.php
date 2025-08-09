@@ -51,6 +51,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if ($categoria_id <= 0) {
         $errores[] = "Debe seleccionar una categoría válida";
+    } else {
+        // Verificar si la categoría_id existe en la tabla categorias
+        try {
+            $pdo = getConnection();
+            $stmt = $pdo->prepare("SELECT id FROM categorias WHERE id = ?");
+            $stmt->execute([$categoria_id]);
+            if (!$stmt->fetch()) {
+                $errores[] = "La categoría seleccionada no existe.";
+            }
+        } catch (PDOException $e) {
+            $errores[] = "Error al verificar la categoría: " . $e->getMessage();
+        }
     }
     
     // Verificar si el código ya existe

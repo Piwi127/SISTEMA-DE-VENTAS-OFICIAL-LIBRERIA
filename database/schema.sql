@@ -244,7 +244,6 @@ INSERT INTO detalle_ventas (venta_id, producto_id, cantidad, precio_unitario, su
 (5, 1, 1, 25.99, 25.99);
 
 -- Crear triggers para movimientos de stock
-DELIMITER //
 
 -- Trigger para registrar movimientos de stock en ventas
 CREATE TRIGGER after_detalle_venta_insert
